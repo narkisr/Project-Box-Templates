@@ -32,10 +32,10 @@
 
 $fn = 1 * 256;
 // Interal width of box (x-axis)
-width = 90;
+width = 70;
 
 // Internal depth of box (y-axis)
-depth = 50;
+depth = 35;
 
 // Internal height of box (z-axis)
 height = 20;
@@ -44,19 +44,19 @@ height = 20;
 wall_thickness = 2;
 
 // Snap fit clearance (adjust based on printer accuracy)
-snap_clearance = 0.5;
+snap_clearance = 0.1;
 
 // Height of snap between lid and base
-snap_depth = 2;
+snap_depth = 1;
 
 // Diameter of hole for power-jack (set to 0 to remove hole)
-power_hole_diameter = 9;
+power_hole_diameter = 11;
 
 // Proto-board width (x-axis) (set to 0 to disable proto-board mounts) [This should be the full width, the script automatically positions the center of the mounting pegs 1.75mm in from each edge]
-proto_width = 70; //set to 0 to disable proto-board mounts
+proto_width = 57.9; //set to 0 to disable proto-board mounts
 
 // Proto-board depth (y-axis) (set to 0 to disable proto-board mounts) [This should be the full depth, the script automatically positions the center of the mounting pegs 1.75mm in from each edge]
-proto_depth = 30;
+proto_depth = 25.1;
 
 // Distance to offset protoboard from box edge (x-axis) (ignored if proto_width or proto_depth are 0)
 proto_width_offset = 5;
@@ -71,16 +71,16 @@ proto_height_offset = 5;
 proto_thickness = 1.6;
 
 // Diameter of holes in protoboard (ignored if proto_width or proto_depth are 0)
-proto_hole_diameter = 2.5;
+proto_hole_diameter = 1.6;
 
 // Diameter of shaft of mounting screw (set to 0 to remove mounting holes)
-screw_mount_diameter = 3;
+screw_mount_diameter = 0;
 
 // Distance from inside edge to top of mounting holes
 screw_mount_offset = 5;
 
 //Left row (x-axis) mounting holes holes (add diameter of holes in array eg "[6, 6, 6]" - they will be spaced equally, set to "[]" to disable.)
-left_row_holes = [6, 6,];
+left_row_holes = [];
 
 //Centre row (x-axis) mounting holes holes (add diameter of holes in array eg "[6, 6, 6]" - they will be spaced equally, set to "[]" to disable.)
 center_row_holes = [];
@@ -106,8 +106,8 @@ proto_pillar_diameter = 1.0 * 3.5;
 box_body();
 proto_mounts_base();
 translate([0, depth + 20, 0]){
-  box_top();
-  proto_mounts_top();
+  //box_top();
+  //proto_mounts_top();
 }
 
 module box_body() {
@@ -155,7 +155,7 @@ module box_body() {
       }
       translate([
         width - (wall_thickness + (wall_thickness / 2)),
-        (depth - (2 * wall_thickness)) / 2,
+        (depth - (2 * wall_thickness)) / 2  + 4,
         height / 2]) {
           rotate([0, 90, 0])
             cylinder(
@@ -173,6 +173,18 @@ module box_body() {
               2 * wall_thickness,
               notch_width,
               2 * snap_depth
+            ]);
+      }
+      
+       translate([
+        -(2 * wall_thickness + (wall_thickness / 2)),
+        (depth - (2 * wall_thickness)) / 2 - 4 ,
+        height / 2]) {
+          rotate([0, 90, 0])
+            cube([
+              1,
+              8,
+              10
             ]);
       }
       if(screw_mount_diameter !=0) {
@@ -240,22 +252,24 @@ module proto_mounts_base() {
 }
 
 module proto_pillars() {
-  proto_pillar();
+  proto_pillar(true);
   translate([proto_width - proto_pillar_diameter, 0, 0]) proto_pillar();
-  translate([0, proto_depth - proto_pillar_diameter, 0]) proto_pillar();
+  translate([0, proto_depth - proto_pillar_diameter, 0]) proto_pillar(true);
   translate([proto_width - proto_pillar_diameter, proto_depth - proto_pillar_diameter, 0]) proto_pillar();
 }
 
-module proto_pillar() {
+module proto_pillar(include_bit) {
   union() {
       cylinder(
         h = proto_height_offset,
         r = proto_pillar_diameter / 2
       );
-      cylinder(
-        h = proto_height_offset + proto_thickness + snap_depth,
-        r = (proto_hole_diameter - snap_clearance) / 2
-      );
+	if(include_bit == true){
+        cylinder(
+          h = proto_height_offset + proto_thickness + snap_depth,
+          r = (proto_hole_diameter - snap_clearance) / 2
+        );
+	}
   }
 }
 
